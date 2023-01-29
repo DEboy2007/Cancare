@@ -17,6 +17,17 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    return MaterialApp(home: MyHome());
+  }
+}
+
+class MyHome extends StatefulWidget {
+  @override
+  _MyHomeState createState() => _MyHomeState();
+}
+
+class _MyHomeState extends State<MyHome> {
+  Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.red,
@@ -25,93 +36,57 @@ class MyApp extends StatelessWidget {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(text: 'Doctor View'),
-                Tab(text: 'Patient View'),
-              ],
-            ),
-            title: Text('Cancare'),
+            centerTitle: true,
+            title: Text("Cancare"),
           ),
-          body: TabBarView(
-            children: [
-              DoctorView(),
-              PatientView(),
+          body: Scrollbar(
+              child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  child: Text("How are you feeling today?"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return InputForm();
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              StreamBuilder(
+                stream: firestore.collection("Patient").snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasData) {
+                    return Expanded(
+                      child: ListView(
+                        children: snapshot.data!.docs.map((document) {
+                          return ListTile(
+                            title: Text(
+                                "Medication: " + document['medicationName']),
+                            subtitle: Text("Side effect: " +
+                                document['sideEffect'] +
+                                "\nMood: " +
+                                document["mood"].toString()),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
             ],
-          ),
+          )),
         ),
       ),
-    );
-  }
-}
-
-class DoctorView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Doctor View'),
-    );
-  }
-}
-
-class PatientView extends StatefulWidget {
-  @override
-  _PatientViewState createState() => _PatientViewState();
-}
-
-class _PatientViewState extends State<PatientView> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("How are you feeling today?"),
-      ),
-      body: Scrollbar(
-          child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              child: Text("Input Form"),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return InputForm();
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-          StreamBuilder(
-            stream: firestore.collection("Patient").snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasData) {
-                return Expanded(
-                  child: ListView(
-                    children: snapshot.data!.docs.map((document) {
-                      return ListTile(
-                        title:
-                            Text("Medication: " + document['medicationName']),
-                        subtitle: Text("Side effect: " +
-                            document['sideEffect'] +
-                            "\nMood: " +
-                            document["mood"].toString()),
-                      );
-                    }).toList(),
-                  ),
-                );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
-        ],
-      )),
     );
   }
 }
@@ -131,6 +106,7 @@ class _InputFormState extends State<InputForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.red,
         title: Text("Input Form"),
       ),
       body: Padding(
