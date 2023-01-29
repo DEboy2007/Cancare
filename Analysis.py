@@ -1,15 +1,50 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-import pickle
 
 df = pd.read_csv("Possible dataset - Static.csv")
 dfreg = pd.read_csv("Static LogReg.csv")
 
+def count_symptoms(med):
+    fatigue = 0
+    nausea = 0
+    swelling = 0
+    confusion = 0
+    fatigue_not = 0
+    nausea_not = 0
+    swelling_not = 0
+    confusion_not = 0
+    for i in range(len(df)):
+        if df.loc[i, f"Med {med}"] == 1:
+            if df.loc[i, "Fatigue"] == 1:
+                fatigue += 1
+            if df.loc[i, "Nausea"] == 1:
+                nausea += 1
+            if df.loc[i, "Swelling"] == 1:
+                swelling += 1
+            if df.loc[i, "Confusion"] == 1:
+                confusion += 1
+        else:
+            if df.loc[i, "Fatigue"] == 1:
+                fatigue_not += 1
+            if df.loc[i, "Nausea"] == 1:
+                nausea_not += 1
+            if df.loc[i, "Swelling"] == 1:
+                swelling_not += 1
+            if df.loc[i, "Confusion"] == 1:
+                confusion_not += 1
+
+    # Create a dataframe with the data
+    data = pd.DataFrame({'Fatigue': [fatigue, fatigue_not], 'Nausea': [nausea, nausea_not], 'Swelling': [swelling, swelling_not], 'Confusion': [confusion, confusion_not]}, index=[f'Medicine {med}', f'No Medicine {med}'])
+
+    # Melt data
+    data = pd.melt(data.reset_index(), id_vars='index', value_vars=['Fatigue', 'Nausea', 'Swelling', 'Confusion'])
+
+    return data
+
+
 function = input(
-    "Welcome to Cancare analysis! What would you like to see?\nCorrelation Heatmap (0)\nShow Medicine Adherence (1)\nBivariate Analysis(2)\n")
+    "Welcome to Cancare analysis! What would you like to see?\nCorrelation Heatmap (0)\nMedicine Adherence (1)\nAffect of taking Medicine on Symptoms (2)\n")
 if (function == "0"):
     sns.heatmap(df.corr(), annot=True)
     plt.show()
@@ -21,33 +56,12 @@ if (function == "1"):
     char_data = pd.DataFrame(
         {'Med 1': char1, 'Med 2': char2, 'Med 3': char3}, index=[1, 2, 3])
 
-    # Use seaborn to create a bar plot
-    sns.catplot(data=char_data, kind="bar")
-
-    # Show the plot
+    sns.catplot(data=char_data, kind="bar").set(title="Medicine Adherence")
     plt.show()
 if (function == "2"):
-    # FIX
     medicine = input(
         "Which medicine would you like to see?\nMedicine 1 (0)\nMedicine 2 (1)\nMedicine 3 (2)\n")
-    grouped = df.groupby(f'Med {str(int(medicine) + 1)}')
-
-    # Count the frequency of the side effects (Fatigue, Nausea, Swelling, and Confusion)
-    fatigue_count = grouped['Fatigue'].sum()
-    nausea_count = grouped['Nausea'].sum()
-    swelling_count = grouped['Swelling'].sum()
-    confusion_count = grouped['Confusion'].sum()
-    print(f"Grouped {fatigue_count}")
-
-    # Create a new DataFrame with the frequency counts
-    count_df = pd.DataFrame({'Fatigue': fatigue_count,
-                            'Nausea': nausea_count,
-                             'Swelling': swelling_count,
-                             'Confusion': confusion_count})
-
-    # Plot the frequency counts as a 100% stacked bar graph
-    sns.set_style('whitegrid')
-    sns.barplot(data=count_df, errorbar=None, estimator=sum, color='#34495e')
-    sns.set(font_scale=1.5)
-    sns.set_palette('husl')
+    sns.catplot(x="variable", y="value", hue="index", data=count_symptoms(int(medicine) + 1), kind="bar").set(title=f"Medicine {int(medicine) + 1} affect on symptoms")
     plt.show()
+    
+    
