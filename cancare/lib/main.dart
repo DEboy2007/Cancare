@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() => runApp(MyApp());
+FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -87,9 +98,9 @@ class InputForm extends StatefulWidget {
 }
 
 class _InputFormState extends State<InputForm> {
-  String _actionTaken = "none";
   double _mood = 3;
   DateTime _currentTime = DateTime.now();
+  String? _sideEffect = "";
   String _medicationName = "";
 
   @override
@@ -102,36 +113,49 @@ class _InputFormState extends State<InputForm> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
+            TextField(
+              decoration: InputDecoration(labelText: 'Medication Name'),
+              onChanged: (value) {
+                setState(() {
+                  _medicationName = value;
+                });
+              },
+            ),
             DropdownButtonFormField(
-              decoration: InputDecoration(labelText: "Action Taken"),
-              value: "nap",
+              decoration: InputDecoration(labelText: "Side Effect"),
+              value: "none",
               items: [
                 DropdownMenuItem(
-                  child: Text("Nap"),
-                  value: "nap",
+                  child: Text("Headache"),
+                  value: "headache",
                 ),
                 DropdownMenuItem(
-                  child: Text("Medication"),
-                  value: "med",
+                  child: Text("Drowsiness"),
+                  value: "drowsiness",
+                ),
+                DropdownMenuItem(
+                  child: Text("Hair loss"),
+                  value: "hair_loss",
+                ),
+                DropdownMenuItem(
+                  child: Text("Nausea"),
+                  value: "nausea",
+                ),
+                DropdownMenuItem(
+                  child: Text("Pain"),
+                  value: "pain",
+                ),
+                DropdownMenuItem(
+                  child: Text("None!"),
+                  value: "none",
                 ),
               ],
               onChanged: (value) {
                 setState(() {
-                  _actionTaken = value ?? "";
+                  _sideEffect = value;
                 });
               },
             ),
-            // If _actionTaken is 'med', show the TextField for medication name
-            _actionTaken == 'med'
-                ? TextField(
-                    decoration: InputDecoration(labelText: 'Medication Name'),
-                    onChanged: (value) {
-                      setState(() {
-                        _medicationName = value;
-                      });
-                    },
-                  )
-                : Container(),
             Slider(
               value: _mood,
               min: 1,
@@ -156,7 +180,12 @@ class _InputFormState extends State<InputForm> {
 
   void _saveForm() {
     // Save form data here
-    Navigator.pop(context,
-        {'actionTaken': _actionTaken, 'mood': _mood, 'time': _currentTime});
+    firestore.collection("Patient").add({
+      'medicationName': _medicationName,
+      'sideEffect': _sideEffect,
+      'mood': _mood,
+      'time': _currentTime
+    });
+    Navigator.pop(context);
   }
 }

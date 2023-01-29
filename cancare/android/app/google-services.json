@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "823588848048",
+    "project_id": "cancare-ef5e4",
+    "storage_bucket": "cancare-ef5e4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823588848048:android:5617afb869c48f8772d675",
+        "android_client_info": {
+          "package_name": "com.example.cancare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "823588848048-h4bhlp2f71jg0u7iempf3p3bfgpbf1so.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDy1o9GZSUVVGRLgZVEpdiauIrTuvM3HJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "823588848048-h4bhlp2f71jg0u7iempf3p3bfgpbf1so.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "823588848048-j9o6ukot5l3puq23tpgr9rg3p57ir7o1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cancare"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
