@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -59,16 +60,14 @@ class PatientView extends StatefulWidget {
 }
 
 class _PatientViewState extends State<PatientView> {
-  String _actionTaken = "";
-  double _mood = 3;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("How are you feeling today?"),
       ),
-      body: Column(
+      body: Scrollbar(
+          child: Column(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -86,8 +85,33 @@ class _PatientViewState extends State<PatientView> {
               },
             ),
           ),
+          StreamBuilder(
+            stream: firestore.collection("Patient").snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasData) {
+                return Expanded(
+                  child: ListView(
+                    children: snapshot.data!.docs.map((document) {
+                      return ListTile(
+                        title:
+                            Text("Medication: " + document['medicationName']),
+                        subtitle: Text("Side effect: " +
+                            document['sideEffect'] +
+                            "\nMood: " +
+                            document["mood"].toString()),
+                      );
+                    }).toList(),
+                  ),
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
         ],
-      ),
+      )),
     );
   }
 }
